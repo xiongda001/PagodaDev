@@ -1,0 +1,102 @@
+{% extends 'base.html' %} {% load staticfiles %}
+{% block title %}个人中心{% endblock title %}
+
+{% load static %}
+{% static "jquery/jquery.min.js" %}
+
+{% block content %}
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <br>
+                <div class="col-md-4">用户名：{{ user.username }}</div>
+                <br>
+                <ul class="col-md-4">
+                    <span>头像：</span><img src="/static{{ MEDIA_URL }}{{ profile.icon }}" alt="" id="user_icon" style="width:75px; height:75px; border-radius:50%">
+                    <input type="button" value="修改头像" onclick="javascript:$('#hiddenFile').click();"/>
+                    {% csrf_token %}
+                    <!--隐藏上传文件的按钮-->
+                    <input id="hiddenFile" type="file" style="display:none" onchange="change_icon();"/>
+                </ul>
+                <br>
+
+                <form method="post" action=".">
+{#                    {% csrf_token %}#}
+                    <div class="form-group col-md-4"><label for="phone">手机号: </label>
+                        <input type="text" id="phone" name="phone" value="{{ profile.phone }}"/>
+                    </div>
+                    <div class="form-group col-md-4"><label for="microblog">我的微博: </label>
+                        <input type="text" id="microblog" name="microblog" value="{{ profile.micro_blog }}"/>
+                    </div>
+                    <div class="form-group col-md-4"><label for="bio">个人简介</label>
+                        <textarea type="text" class="form-control" id="bio" name="bio" rows="12">{{ profile.bio }}</textarea>
+                    </div>
+                    <!--提交按钮-->
+                    <button type="submit" class="btn btn-primary">保存</button>
+                </form>
+
+            <div class="row mt-2">
+              <!--编辑个人中心页面只是更改简介，所以不显示出文章列表-->
+{#            {% for article in articles %}#}
+{#                <!--文章内容-->#}
+{#                <div class="col-4 mb-4">#}
+{#                    <!--卡片容器-->#}
+{#                    <div class="card h-100">#}
+{#                        <!--标题，只展示全部标题的前10个字符，超过10个字符用...表示-->#}
+{#                        <h4 class="card-header">{{ article.title|slice:'10' }}</h4>#}
+{#                        <!--摘要-->#}
+{#                        <div class="card-body">#}
+{#                            <!--卡片区域只展示全部内容的前50个字符，超过50个字符用...表示-->#}
+{#                            <p class="card-text">{{ article.body|slice:'50' }}...</p>#}
+{#                        </div>#}
+{#                        <!--注脚-->#}
+{#                        <div class="card-footer">#}
+{#                            <!--前面的article是在项目根目录的urls.py中定义的app的名称-->#}
+{#                            <!--后面的article_list是在app中的urls.py中定义的具体的路由地址-->#}
+{#                            <a href="{% url 'article:article_detail' article.id %}" class="btn btn-primary">阅读全文</a>#}
+{#                            <!--点赞-->#}
+{#                            <span id="like_{{ article.pk }}" style="color: darkslategray;">赞 {{ article.like }}</span>#}
+{#                            <!--点踩-->#}
+{#                            <span id="dislike_{{ article.pk }}" style="color: darkslategray;">踩 {{ article.dislike }}</span>#}
+{#                        </div>#}
+{##}
+{#                    </div>#}
+{#                </div>#}
+{#            {% endfor %}#}
+        </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script>  //修改头像的功能
+        function change_icon() {
+            //ajax上传文件的时候，需要这个类型，它会将添加给它的键值对加工成formdata的类型
+            var formdata = new FormData();
+            formdata.append('uid', {{ login_user_id }});
+            formdata.append('icon', $("#hiddenFile")[0].files[0]);
+            csrf = $('input[name="csrfmiddlewaretoken"]').val();
+            formdata.append('csrfmiddlewaretoken', csrf);
+
+            $.ajax({
+                url: "{% url 'userprofile:modify_icon' %}",
+                type: 'POST',
+                dataType: 'json',
+                data: formdata,
+                contentType: false,  //是否添加Content-Type请求头
+                processData: false,  //enctype的值不进行编码，multipart/form-data
+                success: function (data) {
+                    console.log('上传头像成功');
+                    if (data.msg == 'success') {
+                        $("#user_icon").attr('src', '/static{{ MEDIA_URL }}' + data.image);
+                    }
+                }, error: function (data) {
+                    console.log(data);
+                }
+            });
+        }
+    </script>
+
+
+{% endblock content %}
+

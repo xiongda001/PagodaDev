@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+
+{% block title %}
+    注册
+{% endblock title %}
+{% load staticfiles %}
+{#<script type="text/javascript" src="{% static 'js/register.js' %}"></script>#}
+
+{% block content %}
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <br>
+                <!--背景图片-->
+                <body style="background-image: url({% static 'media/backgroundImage/bg1.jpg' %});background-size:100% 200%;"></body>
+                <form method="post" action="{% url 'userprofile:user_register' %}" id="register_form">
+                    {% csrf_token %}
+                    <!--用户名-->
+                    <div class="form-group col-md-4">
+                        <lable for="users">用户名</lable>
+                        <input type="text" class="form-control" id="username" name="username" style="width: 300px">
+                        <!--提示信息-->
+                        <span class="error" style="color: red"></span>
+                    </div>
+                    <div class="form-group col-md-4">
+                        <label for="password">设置密码</label>
+                        <input type="password" class="form-control" id="password" name="password" style="width: 300px">
+                        <!--提示信息-->
+                        <span id="msg" style="color: red"></span>
+                    </div>
+                    <!--确认密码-->
+                    <div class="form-group col-md-4">
+                        <label for="confirm_password">确认密码</label>
+                        <input type="password" class="form-control" id="confirm_password" name="confirm_password"
+                               style="width: 300px">
+                        <!--提示信息-->
+                        <span id="msg" style="color: red"></span>
+                    </div>
+                    <!--注册按钮-->
+                    <button type="submit" class="btn btn-primary" id="register_btn" name="register_btn"  onclick="register">注册</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+{% endblock content %}

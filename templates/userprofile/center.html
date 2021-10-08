@@ -1,0 +1,219 @@
+{% extends 'base.html' %} {% load staticfiles %}
+{% block title %}个人中心{% endblock title %}
+
+{% load static %}
+{% static "jquery/jquery.min.js" %}
+{% static "jquery/jquery-3.3.1.js" %}
+<link type="text/css" charset="utf-8" rel=stylesheet href="/static/css/main.css"/>
+
+{#<meta charset="utf-8">#}
+{#<title>Bootstrap 实例 - 分页的状态</title>#}
+{#<link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/css/bootstrap.min.css">#}
+{#<script src="https://cdn.staticfile.org/jquery/2.1.1/jquery.min.js"></script>#}
+{#<script src="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>#}
+
+
+{% block content %}
+    <div class="container">
+        <br>
+        <div class="form-group col-md-4">用户名：{{ visitor.username }}</div>
+
+        {% if visitor.id == login_user_id %}  <!--前端判断当前访问的用户ID是否等于当前登录的用户ID-->
+            <div class="form-group col-md-4">
+                <span>头像：</span><img src="/static{{ MEDIA_URL }}{{ visitor.user_center.icon }}" alt="" id="user_icon" style="width:75px; height:75px; border-radius:50%">
+                <input type="button" value="修改头像" onclick="javascript:$('#hiddenFile').click();"/>
+                {% csrf_token %}
+                <!--隐藏上传文件的按钮-->
+                <input id="hiddenFile" type="file" style="display:none" onchange="change_icon();"/>
+            </div>
+
+        {% else %}
+            <div class="form-group col-md-4">
+            <span>头像：</span><img src="/static{{ MEDIA_URL }}{{ visitor.user_center.icon }}" alt="" id="user_icon" style="width:75px; height:75px; border-radius:50%">
+            {% csrf_token %}
+            <!--隐藏上传文件的按钮-->
+            <input id="hiddenFile" type="file" style="display:none" onchange="change_icon();"/>
+            </div>
+
+        {% endif %}
+
+        <div class="form-group col-md-4"><label for="phone">手机号：{{ visitor.user_center.phone }}</label></div>
+        <div class="form-group col-md-4"><label for="microblog">我的微博：</label><a href="{{ visitor.user_center.micro_blog }}">{{ visitor.user_center.micro_blog }}</a></div>
+
+        {% if visitor.id == login_user_id %}  <!--前端判断当前访问的用户ID是否等于当前登录的用户ID-->
+
+        <div class="form-group col-md-4">
+            <label for="bio">个人简介</label>|<a href='{% url "userprofile:user_center_edit" %}' class="btn">编辑</a>
+            {% csrf_token %}
+            <textarea type="text" class="form-control" id="bio" name="bio" rows="12" style="width: 300px; height: 100px">{{ visitor.user_center.bio }}</textarea>
+        </div>
+        {% else %}
+            <div class="form-group col-md-4">
+            <label for="bio">个人简介</label>
+            <textarea type="text" class="form-control" id="bio" name="bio" rows="12" style="width: 300px; height: 100px">{{ visitor.user_center.bio }}</textarea>
+        </div>
+
+        {% endif %}
+    </div>
+
+    <div class="container">
+        <label class="text-left" style="color: gray">关注的人</label>
+        <a class="text-md-right" href="{% url 'userprofile:user_list' %}" >添加用户</a>
+
+
+        <table class="table table-condensed table-hover">
+            <thead >
+            <tr class="text-center" style="color: gray">
+                <th>序号</th>
+                <th>昵称</th>
+                <th>头像</th>
+                <th>年龄</th>
+            </tr>
+            </thead>
+
+            <tbody>
+            {% for follow_user in follow_users %}
+            <tr class="text-center">
+                <td>{{ forloop.counter }}</td>  <!--序号-->
+                <td>{{ follow_user.user.username }}</td>  <!--用户名-->
+                <td><img alt="暂无" src="/static/media/{{ follow_user.user.user_center.icon }}" style="width:35px; height:35px;"></td> <!--用户头像-->
+                <td>{{ follow_user.user.age}}</td> <!--用户年龄-->
+            </tr>
+            </tbody>
+            {% endfor %}
+        </table>
+
+        <div class="pagination row">  <!--关注的用户列表翻页-->
+            <div class="m-auto">
+                <span class="step-links">
+                    <!--如果不是第一页，则显示上翻按钮-->
+                    {% if follow_users.has_previous %}
+                        <a href="?page=1">首页</a>
+                        <a href="?page={{ follow_users.previous_page_number }}">上一页</a>
+                    {% endif %}
+                    <!--定义当前页-->
+                    <span class="current">
+                        Page {{ follow_users.number }} of {{ follow_users.paginator.num_pages }}
+                    </span>
+
+                    <!--定义下一页-->
+                    {% if follow_users.has_next %}
+                        <a href="?page={{ follow_users.next_page_number }}">下一页</a>
+                        <a href="?page={{ follow_users.paginator.num_pages }}">尾页</a>
+                    {% endif %}
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <p class="text-left" style="color: gray" >文章列表</p>
+
+        <table class="table table-condensed table-hover">
+            <thead >
+            <tr class="text-center" style="color: gray">
+                <th>序号</th>
+                <th>标题</th>
+                <th>文章详情</th>
+                <th>作者</th>
+                <th>更新时间</th>
+                <th>评价</th>
+                <th>操作</th>
+            </tr>
+            </thead>
+
+            <tbody>
+            {% for article in articles %}
+            <tr class="text-center">
+                <td>{{ forloop.counter }}</td>
+                <td>{{ article.title }}</td>
+                <td>{{ article.body|slice:'15' }}</td>
+                <td>{{ visitor.username }}</td>
+                <td>{{ article.updated }}</td>
+                <td>赞 {{ article.like }} | 踩 {{ article.dislike }}</td>
+                <td><a href="{% url 'article:article_detail' article.id %}" >查看</a></td>
+            </tr>
+            </tbody>
+            {% endfor %}
+        </table>
+
+        <div class="pagination row">  <!--文章翻页-->
+            <div class="m-auto">
+                <span class="step-links">
+                    <!--如果不是第一页，则显示上翻按钮-->
+                    {% if articles.has_previous %}
+                        <a href="?page=1">首页</a>
+                        <a href="?page={{ articles.previous_page_number }}">上一页</a>
+                    {% endif %}
+                    <!--定义当前页-->
+                    <span class="current">
+                        Page {{ articles.number }} of {{ articles.paginator.num_pages }}
+                    </span>
+
+                    <!--定义下一页-->
+                    {% if articles.has_next %}
+                        <a href="?page={{ articles.next_page_number }}">下一页</a>
+                        <a href="?page={{ articles.paginator.num_pages }}">尾页</a>
+                    {% endif %}
+                </span>
+            </div>
+        </div>
+
+    </div>
+
+
+    <script>  //修改头像的功能
+        function change_icon() {
+            //ajax上传文件的时候，需要这个类型，它会将添加给它的键值对加工成formdata的类型
+            var formdata = new FormData();
+            formdata.append('uid', {{ login_user_id }});
+            formdata.append('icon', $("#hiddenFile")[0].files[0]);
+            csrf = $('input[name="csrfmiddlewaretoken"]').val();
+            formdata.append('csrfmiddlewaretoken', csrf);
+
+            $.ajax({
+                url: "{% url 'userprofile:modify_icon' %}",
+                type: 'POST',
+                dataType: 'json',
+                data: formdata,
+                contentType: false,  //是否添加Content-Type请求头
+                processData: false,  //enctype的值不进行编码，multipart/form-data
+                success: function (data) {
+                    console.log(data);
+                    if (data.msg == 'success') {
+                        $("#user_icon").attr('src', '/static{{ MEDIA_URL }}' + data.image);
+                    }
+                }, error: function (data) {
+                    console.log(data);
+                }
+            });
+        }
+    </script>
+
+
+{#    <script src="/static/jquery/jquery.min.js"></script>#}
+{#    <script>  // 搜索功能#}
+{#        $("#search-btn").on('click', function () {#}
+{#            var search_word = $("#search").val();#}
+{#            $.ajax({#}
+{#                url: "/userprofile/search/",#}
+{#                type: "POST",#}
+{#                dataType: "json",#}
+{#                data: {"search_word": search_word},#}
+{#                success: function (resp) {#}
+{#                    console.log(resp);#}
+{#                    if (resp.msg === 'success') {#}
+{#                        var user = resp['result'];#}
+{#                        $("#search_result").attr(user)#}
+{#                    }#}
+{#                },#}
+{#                error: function (resp) {#}
+{#                    console.log(resp)#}
+{#                }#}
+{#            })#}
+{#        })#}
+{#    </script>#}
+
+
+{% endblock content %}
+

@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+
+<!--extends表明此页面继承自 base.html文件-->
+{% extends 'base.html' %}
+{% load staticfiles %}
+
+{% load static %}
+{% static "jquery/jquery.min.js" %}
+<link rel="stylesheet" href="{% static "/bootstrap/css/bootstrap.css/bootstrap.min.css" %}">
+
+<!--写入base.html中定义的title-->
+{% block title %}
+    首页
+{% endblock title %}
+
+<!--写入base.html中定义的content-->
+{% block content %}
+
+    <!--定义放置文章标题的div容器-->
+    <div class="container">
+        <br><!--搜索功能-->
+        <form class="form-inline">
+            <div class="form-group">
+                <input type="text" class="form-control mb-2 mr-sm-2" name="search" placeholder="标题/正文/作者">
+            </div>
+            <button class="btn btn-default" type="submit" id="search-btn">搜索</button>
+        </form>
+
+        <!--新增，搜索提示语-->
+        {% if search %}
+            {% if articles %}
+                <h4><span style="color: cornflowerblue">"{{ search }}"的搜索结果如下：</span></h4>
+                <hr>
+            {% else %}
+                <h4>暂无<span style="color: orangered">"{{ search }}"</span>有关信息</h4>
+                <hr>
+            {% endif %}
+        {% endif %}
+
+
+        <!--文章列表页标题和正文卡片-->
+        <div class="row mt-2">
+            {% for article in articles %}
+                <!--文章内容-->
+                <div class="col-4 mb-4">
+                    <div class="card h-100"><!--卡片容器-->
+                        <!--标题，只展示全部标题的前10个字符，超过10个字符用...表示-->
+                        <h4 class="card-header">{{ article.title|slice:'10' }}</h4>
+                        <div class="card-body"><!--摘要-->
+                            <p class="card-text">{{ article.body|slice:'50' }}...</p>
+                            <!--卡片区域只展示全部内容的前50个字符，超过50个字符用...表示-->
+                        </div>
+
+                        <!--注脚-->
+                        <div class="card-footer">
+                            <!--前面的article是在项目根目录的urls.py中定义的app的名称-->
+                            <!--后面的article_list是在app中的urls.py中定义的具体的路由地址-->
+                            <a href="{% url 'article:article_detail' article.id %}" class="btn btn-primary">阅读全文</a>
+
+                            <!--赞和踩-->
+                            <button class="up" onclick="changeLike({{ article.pk }})" id="like_{{ article.pk }}" value="{{ article.like }}"
+                                    style='background-color:lightgrey; color:dodgerblue; width:60px; height:35px; border-radius:8%'>赞 {{ article.like }}
+{#                                <span class="up_info_{{ article.pk }}" id=like_{{ article.pk }}" style="color: red;margin-left: 10px"></span>#}
+                            </button>
+                            <button class="down" onclick="changeDislike({{ article.pk }})" id="dislike_{{ article.pk }}" value="{{ article.dislike }}"
+                                    style='background-color:lightgrey; color:indianred; width:60px; height:35px; border-radius:8%'>踩 {{ article.dislike }}
+{#                                <span class="down_info_{{ article.pk }}" id="dislike_{{ article.pk }}" style="color: red;margin-left: 10px"></span>#}
+                            </button>
+
+                        </div>
+                    </div>
+                </div>
+
+                <script src="/static/jquery/jquery.min.js"></script>
+                <script>
+                    function changeLike(id) {
+                        var is_up = $("#like_" + id).attr('class');   // 获取属性值
+                        {#var article_id = id#}
+                        console.log(is_up);
+
+                        var like_count = $("#like_" + id).val();  // 定义点赞数量参数
+                        console.log(like_count);
+                        console.log(typeof (is_up));  // 获取数据类型
+                        $.ajax({
+                            url: "/article/article_up_down/" + id,
+                            type: "post",
+                            dataType: "json",
+                            data: {
+                                'is_up': is_up,
+                                'csrfmiddlewaretoken': "{{ csrf_token }}"
+                            },
+                            success: function (data, status, xhr) {
+                                if (data['object'] === true) {
+                                    // 重复点赞
+                                    if (data['is_up'] === 'up' && data['handled'] === 'up_double'){
+                                        alert(data['msg']);  // 弹出警告窗，提示内容为后端返回的msg
+
+                                        // 由踩变为赞
+                                    }else if (data['is_up'] === 'up' && data['handled'] === 'down_to_up'){
+                                        window.location.reload(like_count);  // 重新加载页面
+                                        {#alert(data['msg']);#}
+                                    }
+                                }
+                                else{
+                                    // 初次点赞
+                                    if (data['is_up'] === 'up' && data['handled'] === 'up_first'){
+                                        window.location.reload(like_count);  // 重新加载页面
+                                    }
+                                }
+                            }, error: function (data) {
+                                alert('错误提示' + data.status + '!\n点赞出错！');
+                            }
+                        })
+                    }
+                </script>
+
+
+                <script>
+                    function changeDislike(id) {
+                        {#console.log($("#dislike_"+id));#}
+                        var is_up = $("#dislike_" + id).attr('class');
+                        console.log(is_up);
+
+                        var dislike_count = $("#dislike_" + id).val();  // 定义点踩数量参数
+                        console.log(dislike_count);
+                        console.log(typeof (is_up));
+                        $.ajax({
+                            url: "/article/article_up_down/" + id,
+                            type: "post",
+                            dataType: "json",
+                            data: {
+                                'is_up': is_up,
+                                'csrfmiddlewaretoken': "{{ csrf_token }}"
+                            },
+                            success: function (data, status, xhr) {
+                                if (data['object'] === true) {
+                                    // 重复点踩
+                                    if (data['is_up'] === 'down' && data['handled'] === 'down_double'){
+                                        alert(data['msg']);  // 弹出警告窗，提示内容为后端返回的msg
+
+                                        // 由赞变为踩
+                                    }else if (data['is_up'] === 'down' && data['handled'] === 'up_to_down'){
+                                        window.location.reload(dislike_count);  // 重新加载页面
+                                        {#alert(data['msg']);#}
+                                    }
+                                }
+                                else{
+                                    // 初次点踩
+                                    if (data['is_up'] === 'down' && data['handled'] === 'down_first'){
+                                        window.location.reload(dislike_count);  // 重新加载页面
+                                    }
+                                }
+                            }, error: function (data) {
+                                alert('错误提示' + data.status + '!\n点踩出错！');
+                            }
+                        })
+                    }
+                </script>
+
+            {% endfor %}
+        </div>
+
+        <div class="pagination row">  <!--文章翻页-->
+            <div class="m-auto">
+                <span class="step-links">
+                    <!--如果不是第一页，则显示上翻按钮-->
+                    {% if articles.has_previous %}
+                        <a href="?page=1">首页</a>
+                        <a href="?page={{ articles.previous_page_number }}&order={{ order }}&search={{ search }}">上一页</a>
+                    {% endif %}
+
+                    <!--定义当前页-->
+                    <span class="current">
+                        Page {{ articles.number }} of {{ articles.paginator.num_pages }}
+                    </span>
+
+                    <!--定义下一页-->
+                    {% if articles.has_next %}
+                        <a href="?page={{ articles.next_page_number }}&order={{ order }}&search={{ search }}">下一页</a>
+                        <a href="?page={{ articles.paginator.num_pages }}&order={{ order }}&search={{ search }}">末页</a>
+                    {% endif %}
+                </span>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+

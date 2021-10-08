@@ -1,0 +1,76 @@
+{#<!DOCTYPE html>#}
+{#<html lang="en">#}
+{#<head>#}
+{#    <meta charset="UTF-8">#}
+{#    <title>注册</title>#}
+{#    <script src="/static/jquery/jquery.min.js"></script>#}
+{#</head>#}
+{#<body>#}
+{#<form action="" method="post">#}
+{#    <input id="username" type="text" name="username" placeholder="用户名"><span id="msguser" style="color: red"></span><br>#}
+{#    <input id="password" type="password" name="password" placeholder="密码"><span id="msg"></span><br>#}
+{#    <input id="register" type="button" value="注册">#}
+{##}
+{#</form>#}
+{#<p id="content" style="color: red"></p>#}
+{##}
+{##}
+{#<script>#}
+{#    $("#register").click(#}
+{#        function () {#}
+{#            // 获取填写的数据#}
+{#            var username = $("#username").val();#}
+{#            var password = $("#password").val();#}
+{#            // 构建请求的url#}
+{#            var url = "/ajaxtest/registerajax/";#}
+{#            // 构建  post请求的数据对象#}
+{#            var send_data = {#}
+{#                "username": username,#}
+{#                "password": password,#}
+{#                "csrfmiddlewaretoken": "{{ csrf_token }}"#}
+{#            };#}
+{#            $.ajax({#}
+{#                url: url,  // 请求的地址#}
+{#                type: "post",  // 请求的方式  post#}
+{#                data: send_data,  // 请求要发送的数据#}
+{#                success: function (data) {#}
+{#                    // 请求成功，要执行的操作#}
+{#                    console.log(data);#}
+                    {#console.log(data["msg"]);#}
+{#                    $("#msg").text(data["msg"]);#}
+{#                },#}
+{#                error: function (error) {#}
+{#                    // 请求失败，要执行的操作#}
+{#                }#}
+{#            })#}
+{#        }#}
+{#    )#}
+{##}
+{#    // 需求：判断注册用户是否存在，鼠标失去焦点，触发 ajax#}
+{#    $("#username").blur(#}
+{#        function () {#}
+{#            // 获取数据#}
+{#            var username = $("#username").val();#}
+{#            // 构建url  get请求将参数拼接在请求路径上#}
+{#            var url = "/ajaxtest/checkusers/?username=" + username;#}
+{#            $.ajax({#}
+{#                url: url,#}
+{#                type: "get",#}
+{#                data: "",  // 请求要发送的数据  常在post请求中使用，get请求只需要拼接请求的url就可以#}
+{#                success: function (data) {#}
+{#                    console.log(data);#}
+{#                    $("#msguser").text(data["msg"]);#}
+{#                },#}
+{#                error: function (error) {#}
+{##}
+{#                }#}
+{#            })#}
+{#        }#}
+{#    )#}
+{##}
+{##}
+{#</script>#}
+{##}
+{##}
+{#</body>#}
+{#</html>#}

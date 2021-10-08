@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>获取验证码</title>
+</head>
+<body>
+
+<form action="/smsCode" role="search" method="get">
+    <span class="title-content-title">查询12小时内最新的5条验证码</span>
+    <br>
+    <p>
+        <label>选择环境:</label>
+        <select>
+            <option>Test</option>
+            <option>Uat</option>
+            <option>Prod</option>
+        </select>
+    </p>
+
+    <label> 开始时间:</label>
+    <input type="datetime-local" value="2021-05-01T00:00"/>
+    <label> 结束时间:</label>
+    <input type="datetime-local" value="2021-05-30T00:00"/>
+    <label>手机号:</label>
+    <input name= 'phoneNum' type="text" placeholder="11位大陆手机号">
+    <button type='submit' style='background-color:skyblue'>确定</button>
+    <br>
+    <br>
+    <p></p>
+</form>
+
+
+</body>
+</html>
+

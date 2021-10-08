@@ -1,0 +1,45 @@
+
+
+<tr>
+    <th><label for="id_username">用户名:</label></th>
+    <td>
+        <ul class="errorlist">
+            <li>已存在一位使用该名字的用户。</li>
+        </ul>
+        <input type="text" name="username" value="testUser001" maxlength="150" autofocus required
+               id="id_username"><br><span class="helptext">必填。150个字符或者更少。包含字母，数字和仅有的@/./+/-/_符号。</span></td>
+</tr>
+<tr>
+    <th><label for="id_email">Email:</label></th>
+    <td><input type="email" name="email" value="xiongws1991@163.com" required id="id_email"></td>
+</tr>
+<tr>
+    <th><label for="id_password1">密码:</label></th>
+    <td>
+        <ul class="errorlist">
+            <li>这个字段是必填项。</li>
+        </ul>
+        <input type="password" name="password1" required id="id_password1"><br><span class="helptext"><ul><li>你的密码不能与你的其他个人信息太相似。</li><li>你的密码必须包含至少 8 个字符。</li><li>你的密码不能是大家都爱用的常见密码。</li><li>你的密码不能全部为数字。</li></ul></span>
+    </td>
+</tr>
+<tr>
+    <th><label for="id_password2">密码确认:</label></th>
+    <td>
+        <ul class="errorlist">
+            <li>这个字段是必填项。</li>
+        </ul>
+        <input type="password" name="password2" required id="id_password2"><br><span
+            class="helptext">为了校验，请输入与上面相同的密码。</span></td>
+</tr>
+<tr>
+    <th><label for="id_password">Password:</label></th>
+    <td>
+        <ul class="errorlist">
+            <li>密码输入不一致，请重新输入</li>
+        </ul>
+        <input type="text" name="password" value="123456" required id="id_password"></td>
+</tr>
+<tr>
+    <th><label for="id_confirm_password">Confirm password:</label></th>
+    <td><input type="text" name="confirm_password" value="123456" required id="id_confirm_password"></td>
+</tr>

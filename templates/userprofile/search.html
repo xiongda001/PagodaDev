@@ -1,0 +1,64 @@
+{% extends 'base.html' %} {% load staticfiles %}
+{% block title %}个人中心{% endblock title %}
+
+{% load static %}
+{% static "jquery/jquery.min.js" %}
+
+{% block content %}
+    <div class="container">
+        <br><!--搜索功能-->
+        <ul class="nav navbar-nav navbar-right">
+            <li class="col-auto mr-auto" style="padding-right: 80px">
+                <form class="form-inline" >
+                    <label class="sr-only">content</label>
+                    <input type="text" class="form-control mb-2 mr-sm-2" style="margin-right:100px" name="search"
+                           placeholder="搜索：用户id或者用户名" required>
+                    <!--搜索icon-->
+                    <button type="submit" class="btn btn-default">
+                        <span class="glyphicon glyphicon-search"></span>
+                    </button>
+                </form>
+            </li>
+        </ul>
+
+        <div class="row">
+            <div class="col-md-8 col-md-offset-2">
+                {% if search_word == '' %}
+                    <h3>没有任何内容~~</h3>
+
+                {% else %}
+                    <h3>搜索{{ search_word }}, 找到{{ search_users_count }}个结果</h3>
+                    <hr>
+                    {% for user in page_of_users %}
+                        <a href="{% url 'userprofile:user_center' uid %}">
+                            <h4>{{ user.username }}</h4>
+                            <h4>{{ user.icon }}</h4>
+                        </a>
+                        <p>{{ user.bio | striptags | truncatechars_html:100}}</p>
+                    {% empty %}
+                        <p>没有找到任何内容，换个姿势试下 ~ ~ ~</p>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+        <div class="row" style="display: flex; justify-content: right">
+            {% if page_of_users.has_previous %}
+                <a class="btn btn-default"
+                    href="{% url 'search' %}?wd={{ search_word }}&page={{ page_of_users.previous_page_number }}">
+                上一页
+                </a>
+            {% endif %}
+
+            {% if page_of_users.has_next %}
+                <a class="btn btn-default"
+                    href="{% url 'search' %}?wd={{ search_word }}&page={{ page_of_users.next_page_number }}">
+                下一页
+                </a>
+            {% endif %}
+        </div>
+    </div>
+
+
+{% endblock content %}
+
+

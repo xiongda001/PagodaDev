@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>获取验证码</title>
+</head>
+<body>
+<form action="" method="get">
+{#    {% csrf_token %}#}
+    <span class="title-content-title">查询付费会员价格</span>
+    <br>
+    <p>
+        <label>选择环境:</label>
+        <!--后端是根据选项框里的name元素做判断-->
+        <select name="env">
+            <option value="test">Test</option>
+            <option value="uat">Uat</option>
+        </select>
+
+        <label>会员类型:</label>
+        <!--后端是根据选项框里的name元素做判断-->
+        <select name="payMember_type">
+            <option value="1">试用心享</option>
+            <option value="2">心享年卡</option>
+            <option value="3">心享季卡</option>
+            <option value="4">续费年卡</option>
+            <option value="5">续费季卡</option>
+            <option value="6">心享月卡</option>
+            <option value="7">轻享年卡</option>
+            <option value="8">尊享年卡</option>
+        </select>
+
+
+    {#    <label>开始时间:</label>#}
+    <button type="submit" class="form-control" value="查询会员价格" name="query_member_price"
+            style='background-color:skyblue'>查询: </button>
+    <span style='color:cornflowerblue'>{{ result }}</span>
+    <br>
+    <br>
+    </p>
+
+</form>
+</body>
+</html>
+

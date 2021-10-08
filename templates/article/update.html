@@ -1,0 +1,33 @@
+{#<!DOCTYPE html>#}
+{% extends 'base.html' %} {% load staticfiles %}
+{% block title %}
+    更新文章
+{% endblock title %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+            <br>
+            <!--action写一个点代表访问当前路径-->
+            <form method="post" action="/article/article-update/{{ article.pk }}">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for='title'>文章标题</label>
+                    <!--在value属性中指定文本框为旧标题内容，即article对象中的title字段-->
+                    <input type="text" class="form-control" id="title" name="title" value="{{ article.title }}">
+                </div>
+                <div class="form-group">
+                    <label for="body">文章内容</label>
+                    <!--文本域不需要value属性，直接在标签内嵌入数据 -->
+                    <textarea type="text" class="form-control" id="body" name="body" rows="10">{{ article.body }}</textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">完成</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}
+
+

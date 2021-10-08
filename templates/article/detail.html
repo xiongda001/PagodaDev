@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<!--extends表明此页面继承自 base.html文件-->
+{% extends 'base.html' %}
+{% load staticfiles %}
+
+<!--写入base.html中定义的title-->
+{% block title %}
+    文章详情
+{% endblock title %}
+
+<!--写入base.html中定义的content-->
+{% block content %}
+
+<!--文章详情-->
+<div class="container">
+    <div class="row"> <!-- 使用.ml-N 或.mr-N 来微调列距离，使用.ml-auto 和.mr-auto 来左右对齐 -->
+        <!--标题及作者-->
+        <h1 class="c col-12 mt-4 mb-4">{{ article.title }}</h1>
+        <div class="c col-12  alert-success"><label>作者：</label>
+            <a href="#" onclick="read_parent_index({{ article.author_id }})">{{ article.author }}</a>
+            <a class="c col-12 ml-auto" href='{% url "article:article_update" article.pk %}' >编辑</a>
+            <a class="c col-12 ml-auto" href="#" onclick="confirm_delete()">删除</a>
+        </div>
+        <!--文章正文-->
+        <div class="col-12"><p>{{ article.body }}</p></div>
+    </div>
+
+    <br>
+    <br>
+    <!--文章评论样式-->
+        <div>
+            <form action="{% url 'article:comment' article.id %}" method="POST">
+            {% csrf_token %}
+                <div class="form-group">
+                    <label for="content">
+                        <strong>我也要评论：</strong>
+                    </label>
+                    <input type="hidden" name="id" value="{{ article.id }}">
+                    <input type="hidden" name="user" value="{{ article.author.username }}">
+                    <textarea type="text" class="form-control" id="content" name="content" rows="3"></textarea>
+                </div>
+                <!-- 提交按钮 -->
+                <button type="submit" class="btn btn-primary">确定</button>
+            </form>
+        </div>
+        <br>
+
+<!-- 显示评论 -->
+    <h4>共有{{ comments.count }}条评论</h4>
+    <div>
+        {% for comment in comments %}
+            <hr>
+            <p>
+                <strong style="color: green">{{ comment.user.username }}</strong> |
+                <span style="color: green">{{ comment.created|date:"Y-m-d H:i:s" }}</span>
+            </p>
+            <pre style="font-family: inherit; font-size: 1em;">{{ comment.content }}</pre>
+
+            <!--赞和踩-->
+            <button class="up" onclick="changeLike({{ comment.pk }})" id="like_{{ comment.pk }}" value="{{ comment.like }}"
+                style='background-color:lightgrey; color:dodgerblue; width:60px; height:35px; border-radius:8%'>赞 {{ comment.like }}</button>
+{#                <span class="up_info_{{ comment.pk }}" id=like_{{ comment.pk }}" style="color: red;margin-left: 10px"></span>#}
+
+            <button class="down" onclick="changeDislike({{ comment.pk }})" id="dislike_{{ comment.pk }}" value="{{ comment.dislike }}"
+                style='background-color:lightgrey; color:indianred; width:60px; height:35px; border-radius:8%'>踩 {{ comment.dislike }}</button>
+{#                <span class="down_info_{{ comment.pk }}" id="dislike_{{ comment.pk }}" style="color: red;margin-left: 10px"></span>#}
+
+
+
+            <script src="/static/jquery/jquery.min.js"></script>
+                <script>
+                    function changeLike(id) {
+                        var is_up = $("#like_" + id).attr('class');   // 获取属性值
+                        {#var article_id = id#}
+                        console.log(is_up);
+                        console.log(typeof (is_up));  // 获取数据类型
+
+                        var like_count = $("#like_" + id).val();  // 获取点赞的数量
+                        console.log(like_count);
+                        console.log(typeof (like_count));  // 获取数据类型
+
+                        $.ajax({
+                            url: "/article/comment_up_down/" + id,
+                            type: "post",
+                            dataType: "json",
+                            data: {
+                                'is_up': is_up,
+                                'csrfmiddlewaretoken': "{{ csrf_token }}"
+                            },
+                            success: function (data, status, xhr) {
+                                if (data['comment_object'] === true) {
+                                    // 重复点赞
+                                    if (data['is_up'] === 'up' && data['handled'] === 'up_double'){
+                                        alert(data['msg']);  // 弹出警告窗，提示内容获取后端的返回msg
+
+                                        // 由踩变为赞
+                                    }else if (data['is_up'] === 'up' && data['handled'] === 'down_to_up'){
+                                        window.location.reload(like_count);  // 重新加载页面
+                                        {#alert(data['msg']);#}
+                                    }
+                                }
+                                else{
+                                    // 初次点赞
+                                    if (data['is_up'] === 'up' && data['handled'] === 'up_first'){
+                                        window.location.reload(like_count);  // 重新加载页面
+                                    }
+                                }
+                            }, error: function (data) {
+                                alert('错误提示' + data.status + '!\n点赞出错！');
+                            }
+                        })
+                    }
+                </script>
+
+
+                <script>
+                    function changeDislike(id) {
+                        {#console.log($("#dislike_"+id));#}
+                        var is_up = $("#dislike_" + id).attr('class');
+                        console.log(is_up);
+                        console.log(typeof (is_up));
+
+                        var dislike_count = $("#dislike_" + id).val();  // 定义点踩数量参数
+                        console.log(dislike_count);
+                        console.log(typeof (dislike_count));  // 获取数据类型
+
+                        $.ajax({
+                            url: "/article/comment_up_down/" + id,
+                            type: "post",
+                            dataType: "json",
+                            data: {
+                                'is_up': is_up,
+                                'csrfmiddlewaretoken': "{{ csrf_token }}"
+                            },
+                            success: function (data, status, xhr) {
+                                if (data['comment_object'] === true) {
+                                    // 重复点踩
+                                    if (data['is_up'] === 'down' && data['handled'] === 'down_double'){
+                                        alert(data['msg']);  // 弹出警告窗，提示内容获取后端的返回msg
+
+                                        // 由赞变为踩
+                                    }else if (data['is_up'] === 'down' && data['handled'] === 'up_to_down'){
+                                        window.location.reload(dislike_count);  // 重新加载页面
+                                        {#alert(data['msg']);#}
+                                    }
+                                }
+                                else{
+                                    // 初次点踩
+                                    if (data['is_up'] === 'down' && data['handled'] === 'down_first'){
+                                        window.location.reload(dislike_count);  // 重新加载页面
+                                    }
+                                }
+                            }, error: function (data) {
+                                alert('错误提示' + data.status + '!\n点踩出错！');
+                            }
+                        })
+                    }
+                </script>
+
+        {% endfor %}
+    </div>
+
+
+</div>
+<script>
+    // 删除文章js弹窗
+    function confirm_delete() {
+        layer.open({
+            //弹窗标题
+            title: '确认删除',
+            content: '码字不易，真的要这样做吗？',
+            //点击确定按钮调用回调函数
+            yes: function(index, layero) {
+                //指定当前url
+                location.href='{% url 'article:article_delete' article.id %}'
+            },
+        })
+    }
+
+    {#function read_parent_index(author_id) {#}
+    {#   $.ajax({#}
+    {#       url: "/userprofile/read_parent_index/" + author_id,#}
+    {#       type: "post",#}
+    {#       dataType: "json",#}
+    {#       success: function (resp) {#}
+    {#           if (resp['follow_object'] === true) {#}
+    {#               //指定当前url#}
+    {#               location.href='{% url 'userprofile:user_center' article.author_id %}'#}
+    {#           }else {#}
+    {#           layer.open({#}
+    {#               //弹窗标题#}
+    {#               title: '友情提醒：',#}
+    {#               content: '暂无权限查看哦！',#}
+    {#               //点击确定按钮调用回调函数#}
+    {#               yes: function(index, layero) {#}
+    {#                   //指定当前url#}
+    {#                   location.href='{% url 'article:article_detail' article.id %}'#}
+    {#               },#}
+    {#           })#}
+    {#           }#}
+    {#       }#}
+    {#   })#}
+    {# } #}
+
+</script>
+
+    <script>  // 查看文章作者主页
+        function read_parent_index(author_id){
+            $.ajax({
+                url: "/userprofile/read_parent_index/" + author_id,
+                type: "post",
+                dataType: "json",
+                success: function (resp) {
+                    console.log(resp);
+                    // likeusers表中没有记录
+                    if (resp['follow_object'] === false){
+                        // 无权访问作者主页
+                            alert(resp['msg'])
+                        // likeusers表中没有记录
+                    }else {
+                        location.href='{% url 'userprofile:user_center' article.author_id %}';
+                        console.log(resp)
+                    }
+                },
+                error: function (resp) {
+                    console.log(resp)
+                }
+            })
+        }
+    </script>
+
+
+
+{% endblock content %}

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<!--extends表明此页面继承自base.html文件-->
+{% extends 'base.html' %}
+{% load staticfiles %}
+
+<!--写入base.html中定义的title-->
+{% block title %}
+    写文章
+{% endblock title %}
+
+<!--写入base.html中定义的content-->
+{% block content %}
+
+<!--写文章表单-->
+<div class="container">
+    <div class="row">
+        <div class="co1-12">
+            <br>
+            <!-- 提交文章的表单 -->
+            <form method="post" action=".">
+                {% csrf_token %}
+                <!--文章标题-->
+                <div class="form-group">
+                    <!--标签-->
+                    <lable for="title">文章标题</lable>
+                    <!--文本框-->
+                    <input type="text" class="form-control" id="title" name="title" placeholder="限制50个字符内">
+                </div>
+                <!--文章正文-->
+                <div class="form-group">
+                    <label for="body">文章正文</label>
+                    <!--文本区域-->
+                    <textarea type="text" class="form-control" id="body" name="body" rows="10" cols="80"></textarea>
+                </div>
+                <!--提交按钮-->
+                <button type="submit" class="btn btn-primary">完成</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}

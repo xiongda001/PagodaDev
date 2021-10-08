@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>获取验证码</title>
+</head>
+<body>
+<form action="/smsCode/" method="post">
+    {% csrf_token %}
+    <span class="title-content-title">查询12小时内最新的5条验证码</span>
+    <br>
+    <p>
+        <label>选择环境:</label>
+        <!--后端是根据选项框里的name元素做判断-->
+        <select name="select_op">
+            <option value="1">Test</option>
+            <option value="2">Uat</option>
+            <option value="3">Prod</option>
+        </select>
+    </p>
+    <label>开始时间:</label>
+    <input type="datetime-local" class="form-control" name="startTime" value="2021-05-14T00:00">
+    <label>结束时间:</label>
+    <input type="datetime-local" class="form-control" name="endTime" value="2021-05-15T00:00">
+    <label>手机号:</label>
+    <input type="text" name='mobile' placeholder="11位手机号">
+
+    <button type='submit' style='background-color:skyblue'>确定</button>
+
+    <br>
+    <br>
+
+</form>
+
+</body>
+{#<p>短信验证码：{{ sms_code }}</p>#}
+{% for content_code in sms_code %}
+{#    获取的验证码进行换行#}
+    <span>{{ content_code }}</span><br>
+
+{% endfor %}
+</html>
+

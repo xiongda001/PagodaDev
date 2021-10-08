@@ -1,0 +1,169 @@
+{% extends 'base.html' %} {% load staticfiles %}
+{% block title %}用户列表{% endblock title %}
+
+{% load static %}
+{% static "jquery/jquery.min.js" %}
+{% static "jquery/jquery-3.3.1.js" %}
+<link rel="stylesheet" charset="utf-8" href="/static/css/main.css" >
+
+{% block content %}
+
+<div class="container">
+    <br>
+{#    <nav class="navbar navbar-expand-lg text-right">#}
+{#        <ul class="navbar-nav">#}
+{#            <li class="nav-item">#}
+{#                <a class="nav-link" href="{% url 'userprofile:user_center' userId %}">返回个人中心</a>#}
+{#            </li>#}
+{#            <li class="nav-item ml-auto" >#}
+{#                <form class="form-inline">#}
+{#                    <div class="form-group">#}
+{#                        <input type="text" class="form-control" name="search" placeholder="用户名或用户ID">#}
+{#                        <button class="btn btn-default" type="submit" id="search-btn">搜索</button>#}
+{#                    </div>#}
+{##}
+{#                </form>#}
+{#            </li>#}
+{#        </ul>#}
+{#    </nav>#}
+
+    <div class="row">  <!-- 使用.ml-N 或.mr-N 来微调列距离，使用.ml-auto 和.mr-auto 来左右对齐 -->
+        <div class="c col-3">
+            <button class="btn btn-outline-primary">
+                <a class="btn-default" href="{% url 'userprofile:user_center' userId %}">返回个人中心</a>
+            </button>
+        </div>
+        <div class="c col-3 ml-auto">
+            <form class="form-inline">
+                <div class="form-group">
+                    <input type="text" class="form-control" name="search" placeholder="用户名或用户ID">
+                    <button class="btn btn-default" type="submit" id="search-btn">搜索</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <br>
+
+    <table class="table table-borderless table-hover">
+        <thead class="thead-light">  <!--标题栏浅黑-->
+        <tr class="text-center" style="color: gray">
+            <th>序号</th>
+            <th>昵称</th>
+            <th>头像</th>
+            <th>年龄</th>
+            <th>操作</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for user in users %}
+        <tr class="text-center">
+            <td>{{ forloop.counter }}</td>
+            <td>{{ user.username }}</td>
+            <td><img alt="暂无图像" src="/static/media/{{ user.user_center__icon }}" style="width:35px; height:35px;"></td>
+            <td>{{ user.age }}</td>
+            <td><button class="btn btn-success" id="follow" onclick="follow({{ user.pk }})">关注</button>
+                <button class="btn btn-warning" id="unfollow" onclick="unfollow({{ user.pk }})">取消关注</button>
+            </td>
+        </tr>
+        </tbody>
+        {% endfor %}
+    </table>
+
+    <!--文章翻页-->
+    <div class="pagination row">
+        <div class="m-auto">
+            <span class="step-links">
+                <!--如果不是第一页，则显示上翻按钮-->
+                {% if users.has_previous %}
+                    <a href="?page=1">首页</a>
+                    <a href="?page={{ users.previous_page_number }}">上一页</a>
+                {% endif %}
+                <!--定义当前页-->
+                <span class="current">
+                    Page {{ users.number }} of {{ users.paginator.num_pages }}
+                </span>
+
+                <!--定义下一页-->
+                {% if users.has_next %}
+                    <a href="?page={{ users.next_page_number }}">下一页</a>
+                    <a href="?page={{ users.paginator.num_pages }}">尾页</a>
+                {% endif %}
+            </span>
+        </div>
+    </div>
+
+
+    <script src="/static/jquery/jquery.min.js"></script>
+    <script>  // 关注
+        function follow(follow_user_id){
+            $.ajax({
+                url: "/userprofile/follow_user/" + follow_user_id,
+                type: "post",
+                dataType: "json",
+                data: {
+                    "follow": true
+                },
+                success: function (resp) {
+                    console.log(resp);
+                    // likeusers表中有记录
+                    if (resp['follow_object'] === true){
+                        // 点击关注按钮
+                        if (resp['follow'] === true){
+                            alert(resp['msg'])  // 弹出警告窗，提示内容为后端返回的msg
+                        }
+                        // likeusers表中没有记录，点击关注按钮后置灰
+                    }else {
+                        if (resp['follow'] === true){
+                            $("#follow").click(function () {
+                                $(this).attr('disabled', 'true')
+                            });
+                            console.log(resp);
+                            alert(resp['msg'])
+                        }
+                    }
+                },
+                error: function (resp) {
+                    console.log(resp)
+                }
+            })
+
+        }
+    </script>
+
+    <script>  // 取消关注
+        function unfollow(follow_user_id){
+            $.ajax({
+                url: "/userprofile/follow_user/" + follow_user_id,
+                type: "post",
+                dataType: "json",
+                data: {
+                    "follow": false
+                },
+                success: function (resp) {
+                    console.log(resp);
+                    // likeusers表中有记录
+                    if (resp['follow_object'] === true){
+                        // 点击取消关注按钮后置灰
+                        if (resp['follow'] === false){
+                            $("#unfollow").click(function () {
+                                $(this).attr('disabled', 'true')
+                            });
+                            alert(resp['msg'])
+                        }
+                        // likeusers表中没有记录，点击取消关注按钮
+                    }else {
+                        if (resp['follow'] === false){
+                            alert(resp['msg'])
+                        }
+                    }
+                },
+                error: function (resp) {
+                    console.log(resp)
+                }
+            })
+        }
+    </script>
+
+
+</div>
+{% endblock %}

@@ -1,0 +1,52 @@
+{% extends 'base.html' %} {% load staticfiles %}
+{% block title %} 登录 {% endblock title %}
+
+{% load static %}
+{% static "jquery/jquery.min.js" %}
+
+
+{% block content %}
+
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+            <!--背景图片-->
+            <body style="background-Image: url({% static 'media/backgroundImage/bg1.jpg' %});background-size:100% 200%;"></body>
+            <br>
+            <form method="post" action="{% url 'userprofile:user_login' %}" id="login_form">
+                {% csrf_token %}
+
+                <div class="form-group">
+                    <label for="username">用户名</label>
+                    <!--后端是根据前端name元素属性进行数据校验-->
+                    <input type="text" class="form-control" id="id_username" name="username" style="width: 300px">
+                </div>
+
+                <div class="form-group">
+                    <label for="password">密码</label>
+                    <input type="password" class="form-control" id="id_password" name="password" style="width: 300px">
+                    <br>
+                    <!--错误提示-->
+                    <p style="color: red">{{ error_msg }}</p>
+                </div>
+
+                <div>
+                    <!--登录按钮-->
+                    <button type="submit" class="btn btn-primary" onclick="login_btn()" id="login" value="login_btn">
+                        登录
+                    </button>
+                </div>
+                <div class="col-12">
+                    <br>
+                    <h5>还没有账号？点击<a href="{% url 'userprofile:user_register' %}">立即注册</a></h5>
+                    <br>
+                </div>
+            </form>
+        </div>
+    </div>
+
+</div>
+
+
+{% endblock content %}
+
