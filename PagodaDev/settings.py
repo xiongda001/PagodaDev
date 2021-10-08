@@ -108,11 +108,11 @@ DATABASES = {
         # 'NAME': str(BASE_DIR / 'db.sqlite3'),
         # 指定数据库引擎
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'pagoda_test',
-        'USER': 'root',
-        'PASSWORD': '123456',
-        'HOST': '8.129.90.229',
-        'PORT': 3306,
+        'NAME': '',
+        'USER': '',
+        'PASSWORD': '',
+        'HOST': '',
+        'PORT': ,
     }
 }
 
